@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: black;
+  }
+  .timerDisplay {
+    color: green;
+    font-size: 40vw;
+    margin-bottom: 20px;
+  }
+  .cookieDisplay {
+    color: white;
+    font-size: 18px;
+  }
+</style>
+
+<script>
+
+function displayTimer(seconds) {
+    let minutesDisplay = Math.floor(seconds / 60);
+    let secondsDisplay = seconds % 60;
+
+    const timerDisplay = document.getElementById("timer");
+    timerDisplay.textContent =
+        `${String(minutesDisplay).padStart(2, '0')}:${String(secondsDisplay).padStart(2, '0')}`;
+
+    if (minutesDisplay === 0 && secondsDisplay === 0) {
+        timerDisplay.style.color = "red";
+    } else {
+        timerDisplay.style.color = "green"; // Set it back to green if it's not 00:00
+    }
+}
+
+let syncInterval;
+let timerInterval;
+let secondsLeft;
+
+window.onload = function() {
+    let timerDisplay = document.getElementById("timer");
+    let cookieDisplay = document.getElementById("cookieDisplay");
+
+    syncInterval = null;
+    timerInterval = null;
+
+    syncInterval = setInterval(function() {
+        let status = localStorage.getItem("status");
+        let seconds = parseInt(localStorage.getItem("seconds"));
+
+        // Display cookie values for troubleshooting
+        let statusText = `Status: ${status}`;
+        let secondsText = `Seconds: ${seconds}`;
+
+        cookieDisplay.textContent = `${statusText}\n${secondsText}`;
+
+        if (status === "started") {
+            if (timerInterval === null) {
+                secondsLeft = seconds;
+                timerInterval = setInterval(function() {
+                    if (secondsLeft > 0) {
+                        secondsLeft--;
+                        displayTimer(secondsLeft);
+                    } else {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }                
+                }, 1000)
+            }
+        } else if (status === "stopped") {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            displayTimer(seconds);
+        } else if (status === "ready") {
+            displayTimer(seconds);
+        } else return
+    }, 250);
+};
+</script>
+</head>
+<body>
+    <div id="timer" class="timerDisplay">00:00</div>
+    <div id="cookieDisplay" class="cookieDisplay"></div>
+</body>
+</html>

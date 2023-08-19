@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    background-color: black;
+    font-family: Arial;
+  }
+  .timerDisplay {
+    background-color: black;
+    color: green;
+    font-size: 300px;
+  }
+  .timerInput {
+    font-size: 15px; 
+  }
+  .inputLabel {
+    font-size: 15px; 
+    color: white;
+  }
+</style>
+<script>
+function setLocalStorage(name, value) {
+    localStorage.setItem(name, value);
+}
+
+function getLocalStorage(name) {
+    const value = localStorage.getItem(name);
+    return value ? parseInt(value) : null;
+}
+
+function startTimer() {
+
+    if (getLocalStorage("status") === 'started') return;
+
+    let inputMinutes = document.getElementById("minutes").value;
+    let inputSeconds = document.getElementById("seconds").value;
+
+    secondsLeft = (parseInt(inputMinutes) * 60) + parseInt(inputSeconds);
+    
+    if (secondsLeft !== null) {
+
+        setLocalStorage("seconds", secondsLeft);
+        setLocalStorage("status", "started");
+        disableInputs(true);        
+        timerInterval = setInterval(function() {
+            if (secondsLeft > 0) {
+                secondsLeft--;
+                displayTimer(secondsLeft);
+            } else {
+                stopTimer();
+            }
+        }, 1000);
+    }
+}
+
+function stopTimer() {
+
+    setLocalStorage("status", "stopped");
+    setLocalStorage("seconds", secondsLeft || 0);
+    clearInterval(timerInterval);
+    disableInputs(false);    
+}
+
+function clearTimer() {
+    stopTimer();
+    setLocalStorage("seconds", 0);
+    setLocalStorage("status", "ready");
+    displayTimer(0);
+}
+
+function displayTimer(seconds) {
+    let minutesDisplay = Math.floor(seconds / 60);
+    let secondsDisplay = seconds % 60;
+
+    const timerDisplay = document.getElementById("timer");
+    timerDisplay.textContent =
+        `${String(minutesDisplay).padStart(2, '0')}:${String(secondsDisplay).padStart(2, '0')}`;
+
+    if (minutesDisplay === 0 && secondsDisplay === 0) {
+        timerDisplay.style.color = "red";
+    } else {
+        timerDisplay.style.color = "green"; // Set it back to green if it's not 00:00
+    }        
+}
+
+function disableInputs(disable) {
+    document.getElementById("minutes").disabled = disable;
+    document.getElementById("seconds").disabled = disable;
+    document.getElementById("start").disabled = disable;
+    document.getElementById("clear").disabled = disable;
+}
+
+var timerInterval;
+var secondsLeft;
+
+window.onload = function() {
+    const minutesInput = document.getElementById("minutes");
+    const secondsInput = document.getElementById("seconds");
+    const startButton = document.getElementById("start");
+    const stopButton = document.getElementById("stop");
+    const clearButton = document.getElementById("clear");
+
+    minutesInput.addEventListener("change", function() {
+        let minutesCalc = (parseInt(minutesInput.value) * 60) + parseInt(secondsInput.value)
+        setLocalStorage("seconds", minutesCalc);
+        displayTimer(minutesCalc);
+    });
+
+    secondsInput.addEventListener("change", function() {
+        let secondsCalc = (parseInt(minutesInput.value) * 60) + parseInt(secondsInput.value)
+        setLocalStorage("seconds", secondsCalc);
+        displayTimer(secondsCalc);
+    });
+
+    startButton.addEventListener("click", function() {
+        startTimer();
+    });
+
+    stopButton.addEventListener("click", function() {
+        stopTimer();
+    });
+
+    clearButton.addEventListener("click", function() {
+        clearTimer();
+    });
+
+    let status = getLocalStorage("status");
+    if (status === "started") {
+        startTimer();
+    } else if (status === "stopped") {
+        stopTimer();
+    } else {
+        clearTimer();
+    }
+};
+</script>
+</head>
+<body>
+    <div id="timer" class="timerDisplay">00:00</div>    
+<form>
+  <label class="inputLabel" for="minutes">Minutes:</label>
+  <input type="number" class="timerInput" id="minutes" name="minutes" min="0" value="0"><br><br>
+  <label class="inputLabel" for="seconds">Seconds:</label>
+  <input type="number" class="timerInput" id="seconds" name="seconds" min="0" value="0"><br><br>
+  <button type="button" id="start">Start</button>
+  <button type="button" id="stop">Stop</button>
+  <button type="button" id="clear">Clear</button>
+</form>
+</body>
+</html>
