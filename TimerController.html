@@ -25,20 +25,31 @@ function setLocalStorage(name, value) {
 }
 
 function getLocalStorage(name) {
-    const value = localStorage.getItem(name);
-    return value ? parseInt(value) : null;
+    let value = localStorage.getItem(name);
+    let number = parseInt(value);
+    let isNumber = (number === NaN)
+
+    let returnValue = isNumber ? number: value;
+    return returnValue;
 }
 
 function startTimer() {
+    let status = getLocalStorage("status");
 
-    if (getLocalStorage("status") === 'started') return;
+    if (status === 'started') return;
 
     let inputMinutes = document.getElementById("minutes").value;
     let inputSeconds = document.getElementById("seconds").value;
 
-    secondsLeft = (parseInt(inputMinutes) * 60) + parseInt(inputSeconds);
-    
-    if (secondsLeft !== null) {
+    if (status !== 'stopped') {
+        secondsLeft = (parseInt(inputMinutes) * 60) + parseInt(inputSeconds);
+    } else if (status === 'stopped') {
+        if (secondsLeft === null || secondsLeft === 0 || secondsLeft === undefined) {
+            secondsLeft = (parseInt(inputMinutes) * 60) + parseInt(inputSeconds);
+        } 
+    }
+
+    if (secondsLeft !== null && secondsLeft !== 0) {
 
         setLocalStorage("seconds", secondsLeft);
         setLocalStorage("status", "started");
