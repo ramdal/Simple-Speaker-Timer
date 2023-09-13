@@ -1,5 +1,5 @@
 # Simple-Speaker-Timer
-Two HTML files act as timer controller and display on a local machine with 2 monitor outputs
+Two HTML files act as timer controller and display on a local machine with multiple monitor outputs
 
 Assumptions:
 -A browser and permissions that supports the localStorage API (HTML 5)
